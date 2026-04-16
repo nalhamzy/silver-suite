@@ -1,0 +1,192 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:silver_suite/core/constants/theme.dart';
+import 'package:silver_suite/core/models/settings.dart';
+import 'package:silver_suite/core/utils/responsive.dart';
+import 'package:silver_suite/providers/settings_provider.dart';
+import 'package:silver_suite/screens/calculator_screen.dart';
+import 'package:silver_suite/screens/flashlight_screen.dart';
+import 'package:silver_suite/screens/magnifier_screen.dart';
+import 'package:silver_suite/screens/notes_screen.dart';
+import 'package:silver_suite/widgets/big_action_card.dart';
+
+class MoreScreen extends ConsumerWidget {
+  const MoreScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    final s = ref.read(settingsProvider.notifier);
+
+    return SafeArea(
+      child: ResponsiveContentBox(
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+              context.s(20), context.s(18), context.s(20), context.s(120)),
+          children: [
+            const Text('MORE',
+                style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 1.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.mute,
+                )),
+            const SizedBox(height: 4),
+            Text('Tools & settings',
+                style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 18),
+            BigRowCard(
+              title: 'Flashlight',
+              subtitle: 'Turn on your camera light',
+              icon: Icons.flashlight_on_outlined,
+              color: AppTheme.amber,
+              onTap: () => _push(context, const FlashlightScreen()),
+            ),
+            const SizedBox(height: 12),
+            BigRowCard(
+              title: 'Magnifier',
+              subtitle: 'Big, bold, high-contrast text',
+              icon: Icons.search,
+              color: AppTheme.indigo,
+              onTap: () => _push(context, const MagnifierScreen()),
+            ),
+            const SizedBox(height: 12),
+            BigRowCard(
+              title: 'Notes',
+              subtitle: 'Simple, large-text notes',
+              icon: Icons.edit_note_outlined,
+              color: AppTheme.green,
+              onTap: () => _push(context, const NotesScreen()),
+            ),
+            const SizedBox(height: 12),
+            BigRowCard(
+              title: 'Calculator',
+              subtitle: 'Big keys, simple math',
+              icon: Icons.calculate_outlined,
+              color: AppTheme.blue,
+              onTap: () => _push(context, const CalculatorScreen()),
+            ),
+            const SizedBox(height: 28),
+            Text('Accessibility',
+                style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 10),
+            _SettingsCard(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Dark mode',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      Switch(
+                        value: settings.darkMode,
+                        activeThumbColor: AppTheme.blue,
+                        onChanged: (v) => s.setDarkMode(v),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Text size',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 10),
+                      SegmentedButton<TextScaleOption>(
+                        showSelectedIcon: false,
+                        segments: const [
+                          ButtonSegment(
+                            value: TextScaleOption.standard,
+                            label: Text('Aa',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                          ButtonSegment(
+                            value: TextScaleOption.large,
+                            label: Text('Aa',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800)),
+                          ),
+                          ButtonSegment(
+                            value: TextScaleOption.xLarge,
+                            label: Text('Aa',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w900)),
+                          ),
+                        ],
+                        selected: {settings.textScale},
+                        onSelectionChanged: (set) =>
+                            s.setTextScale(set.first),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Current: ${settings.textScale.label}',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _SettingsCard(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('About Silver Suite',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Big buttons. Clear text. Real help. Everything stays on this device — no account, no cloud, no tracking.',
+                        style: TextStyle(fontSize: 15, height: 1.4),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('Version 1.0.0',
+                          style: TextStyle(
+                              color: AppTheme.mute,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  final List<Widget> children;
+  const _SettingsCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: dark ? const Color(0xFF161A22) : AppTheme.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: dark ? const Color(0xFF2A2F3B) : AppTheme.outline,
+        ),
+      ),
+      child: Column(children: children),
+    );
+  }
+}
