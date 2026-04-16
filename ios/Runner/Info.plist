@@ -65,6 +65,19 @@
 	<array>
 		<string>tel</string>
 	</array>
+	<!-- AdMob -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
+	<!-- ATT (for personalized ads). "Non-personalized only" flow skips prompt. -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This only asks if you'd like personalized ads. Your answer stays on your device.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

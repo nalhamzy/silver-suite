@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:silver_suite/core/constants/theme.dart';
 import 'package:silver_suite/core/models/settings.dart';
 import 'package:silver_suite/core/utils/responsive.dart';
+import 'package:silver_suite/providers/iap_provider.dart';
 import 'package:silver_suite/providers/settings_provider.dart';
 import 'package:silver_suite/screens/calculator_screen.dart';
 import 'package:silver_suite/screens/flashlight_screen.dart';
 import 'package:silver_suite/screens/magnifier_screen.dart';
 import 'package:silver_suite/screens/notes_screen.dart';
+import 'package:silver_suite/screens/paywall_screen.dart';
 import 'package:silver_suite/widgets/big_action_card.dart';
 
 class MoreScreen extends ConsumerWidget {
@@ -17,6 +19,8 @@ class MoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final s = ref.read(settingsProvider.notifier);
+    final isPremium = ref.watch(isPremiumProvider);
+    final hideAds = ref.watch(hideAdsProvider);
 
     return SafeArea(
       child: ResponsiveContentBox(
@@ -34,6 +38,8 @@ class MoreScreen extends ConsumerWidget {
             const SizedBox(height: 4),
             Text('Tools & settings',
                 style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 18),
+            _PremiumBanner(isPremium: isPremium, hideAds: hideAds),
             const SizedBox(height: 18),
             BigRowCard(
               title: 'Flashlight',
@@ -168,6 +174,91 @@ class MoreScreen extends ConsumerWidget {
 
   void _push(BuildContext context, Widget screen) {
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+}
+
+class _PremiumBanner extends StatelessWidget {
+  final bool isPremium;
+  final bool hideAds;
+  const _PremiumBanner({required this.isPremium, required this.hideAds});
+
+  @override
+  Widget build(BuildContext context) {
+    final title = isPremium
+        ? 'Silver+ active'
+        : (hideAds ? 'Ads removed · upgrade for more' : 'Upgrade to Silver+');
+    final subtitle = isPremium
+        ? 'Thank you for supporting a calm, ad-free app.'
+        : (hideAds
+            ? 'Unlock unlimited pills, contacts, and notes.'
+            : 'Remove ads · unlimited everything · privacy first.');
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const PaywallScreen()),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: isPremium
+                ? AppTheme.greenGradient
+                : AppTheme.primaryGradient,
+            borderRadius: BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: (isPremium ? AppTheme.green : AppTheme.blue)
+                    .withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  isPremium ? Icons.workspace_premium : Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                        )),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.5,
+                          height: 1.35,
+                        )),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.white, size: 30),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

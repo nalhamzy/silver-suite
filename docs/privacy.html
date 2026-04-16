@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silver Suite — Privacy Policy</title>
+  <meta name="theme-color" content="#1864C0">
+  <link rel="icon" href="icon.png" type="image/png">
+  <style>
+    :root {
+      --bg: #F7F5F1; --ink: #101623; --mute: #4A556B;
+      --blue: #1864C0; --blue-deep: #0D4387; --outline: #D6D8DE;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--ink); line-height: 1.6;
+      max-width: 760px; margin: 0 auto; padding: 40px 24px 80px;
+      font-size: 17px;
+    }
+    a { color: var(--blue-deep); }
+    h1 { font-size: 42px; letter-spacing: -0.5px; margin-bottom: 6px; }
+    h2 { margin-top: 36px; font-size: 24px; }
+    h3 { margin-top: 24px; font-size: 18px; }
+    .meta { color: var(--mute); font-size: 15px; margin-bottom: 36px; }
+    blockquote {
+      background: #E6F0FB; border-left: 4px solid var(--blue);
+      margin: 0; padding: 18px 22px; border-radius: 0 14px 14px 0;
+    }
+    table {
+      border-collapse: collapse; width: 100%; margin: 16px 0;
+      background: #FFFFFF; border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--outline);
+    }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--outline); }
+    th { background: #E6F0FB; font-weight: 700; }
+    tr:last-child td { border-bottom: none; }
+    nav.back a { color: var(--mute); }
+  </style>
+</head>
+<body>
+<nav class="back"><a href="./">← Silver Suite</a></nav>
+<h1>Privacy Policy</h1>
+<p class="meta">Effective date: 17 April 2026</p>
+
+<blockquote><strong>TL;DR</strong> — No account. No analytics. Your data stays on your phone. The free tier shows a banner ad via Google AdMob — upgrade removes it permanently.</blockquote>
+
+<h2>What Silver Suite itself collects</h2>
+<p><strong>Nothing.</strong> There is no analytics pipeline, no crash reporter, no server we control. The app has no account system.</p>
+
+<h2>Ads (free tier only, via Google AdMob)</h2>
+<p>When ads are enabled — meaning you haven't yet bought Remove Ads or any Silver+ plan — the Google Mobile Ads SDK runs inside the app. By default we request <strong>non-personalized</strong> ads. AdMob receives:</p>
+<ul>
+  <li>Your device's advertising identifier (IDFA on iOS, AAID on Android)</li>
+  <li>Ad request metadata (country-level IP, ad unit ID, app version)</li>
+</ul>
+<p>The moment you buy Remove Ads or Silver+, the AdMob SDK is no longer called. No further ad requests are made from your device.</p>
+<p>AdMob policy: <a href="https://policies.google.com/privacy">policies.google.com/privacy</a></p>
+
+<h2>What lives on your device</h2>
+<ul>
+  <li>Pill schedules + taken-today log</li>
+  <li>Contacts (name, phone, relation, emergency flag)</li>
+  <li>Notes</li>
+  <li>Display settings (dark mode, text-size preset)</li>
+  <li>Premium state (which tier you bought)</li>
+</ul>
+<p>Nothing here leaves the device. There is no cloud sync. Uninstalling the app deletes all of it.</p>
+
+<h2>In-App Purchases</h2>
+<p>Processed entirely by Apple App Store / Google Play Billing. Silver Suite receives only a signed receipt with the product ID + purchase state, used to flip local flags. We never see your card, Apple ID, or Google account email.</p>
+
+<h2>Permissions</h2>
+<table>
+  <tr><th>Permission</th><th>Why</th></tr>
+  <tr><td>Camera</td><td>To toggle the torch LED (required by <code>torch_light</code>). We never capture photos or video.</td></tr>
+  <tr><td>Internet</td><td>AdMob ad requests on the free tier only.</td></tr>
+  <tr><td>Billing</td><td>To talk to Play Billing.</td></tr>
+</table>
+<p>No contacts, calendar, microphone, or location permissions are requested — ever.</p>
+
+<h2>Phone calls</h2>
+<p>When you tap a contact's call button, Silver Suite invokes the system dialer via a standard <code>tel:</code> URL. We do not place the call, intercept it, or log it.</p>
+
+<h2>GDPR / California / Australia rights</h2>
+<ul>
+  <li><strong>Access</strong> — everything is on your device.</li>
+  <li><strong>Deletion</strong> — uninstall the app.</li>
+  <li><strong>Opt out of sale</strong> — no sale happens.</li>
+  <li><strong>Automated decision-making</strong> — none occurs.</li>
+</ul>
+<p>EU/UK users: legal basis for processing the advertising identifier (free tier only) is consent. Withdraw by upgrading to any paid tier, or via device-level settings.</p>
+
+<h2>Children</h2>
+<p>Silver Suite is designed for adults. It is not directed at children under 13 and we do not knowingly collect personal information from them.</p>
+
+<h2>Contact</h2>
+<p><a href="mailto:nalhamzy@gmail.com">nalhamzy@gmail.com</a></p>
+</body>
+</html>

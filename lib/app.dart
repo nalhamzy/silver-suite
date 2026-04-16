@@ -2,18 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:silver_suite/core/constants/theme.dart';
 import 'package:silver_suite/core/models/settings.dart';
+import 'package:silver_suite/providers/iap_provider.dart';
 import 'package:silver_suite/providers/navigation_provider.dart';
 import 'package:silver_suite/providers/settings_provider.dart';
+import 'package:silver_suite/widgets/ad_banner_widget.dart';
 import 'package:silver_suite/screens/contacts_screen.dart';
 import 'package:silver_suite/screens/home_screen.dart';
 import 'package:silver_suite/screens/more_screen.dart';
 import 'package:silver_suite/screens/pills_screen.dart';
 
-class SilverSuiteApp extends ConsumerWidget {
+class SilverSuiteApp extends ConsumerStatefulWidget {
   const SilverSuiteApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SilverSuiteApp> createState() => _SilverSuiteAppState();
+}
+
+class _SilverSuiteAppState extends ConsumerState<SilverSuiteApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final iap = ref.read(iapServiceProvider);
+      iap.onPurchaseSuccess = (productId) {
+        ref.read(premiumProvider.notifier).activate(productId);
+      };
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     return MaterialApp(
       title: 'Silver Suite',
@@ -40,7 +58,13 @@ class _AppShell extends ConsumerWidget {
           child: _screenFor(tab),
         ),
       ),
-      bottomNavigationBar: const _BottomNav(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          AdBannerWidget(),
+          _BottomNav(),
+        ],
+      ),
     );
   }
 

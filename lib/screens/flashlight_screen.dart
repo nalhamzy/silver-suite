@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:silver_suite/core/constants/theme.dart';
-import 'package:torch_light/torch_light.dart';
+import 'package:silver_suite/core/services/torch_service.dart';
 
 class FlashlightScreen extends StatefulWidget {
   const FlashlightScreen({super.key});
@@ -11,6 +11,7 @@ class FlashlightScreen extends StatefulWidget {
 }
 
 class _FlashlightScreenState extends State<FlashlightScreen> {
+  final TorchService _torch = TorchService();
   bool _on = false;
   bool _torchAvailable = true;
   String? _error;
@@ -23,23 +24,18 @@ class _FlashlightScreenState extends State<FlashlightScreen> {
   }
 
   Future<void> _checkAvailability() async {
-    try {
-      final avail = await TorchLight.isTorchAvailable();
-      if (!mounted) return;
-      setState(() => _torchAvailable = avail);
-    } catch (_) {
-      if (!mounted) return;
-      setState(() => _torchAvailable = false);
-    }
+    final avail = await _torch.isAvailable();
+    if (!mounted) return;
+    setState(() => _torchAvailable = avail);
   }
 
   Future<void> _toggle() async {
     HapticFeedback.mediumImpact();
     try {
       if (_on) {
-        await TorchLight.disableTorch();
+        await _torch.disable();
       } else {
-        await TorchLight.enableTorch();
+        await _torch.enable();
       }
       if (!mounted) return;
       setState(() {
@@ -55,7 +51,7 @@ class _FlashlightScreenState extends State<FlashlightScreen> {
   @override
   void dispose() {
     if (_on) {
-      TorchLight.disableTorch().catchError((_) {});
+      _torch.disable().catchError((_) {});
     }
     super.dispose();
   }

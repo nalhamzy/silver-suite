@@ -1,0 +1,8 @@
+title: Silver Suite
+description: Big buttons. Clear text. Real help. A senior-friendly utility suite.
+url: "https://nalhamzy.github.io"
+baseurl: "/silver-suite"
+theme: null
+plugins: []
+include:
+  - .nojekyll

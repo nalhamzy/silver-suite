@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:silver_suite/core/models/contact_entry.dart';
 import 'package:silver_suite/core/models/note.dart';
 import 'package:silver_suite/core/models/pill.dart';
+import 'package:silver_suite/core/models/premium_state.dart';
 import 'package:silver_suite/core/models/settings.dart';
 
 class StorageService {
@@ -11,6 +12,7 @@ class StorageService {
   static const _kPillLogs = 'ss_pill_logs';
   static const _kNotes = 'ss_notes';
   static const _kSettings = 'ss_settings';
+  static const _kPremium = 'ss_premium';
 
   final SharedPreferences _prefs;
   StorageService(this._prefs);
@@ -55,6 +57,20 @@ class StorageService {
 
   Future<void> saveSettings(AppSettings s) =>
       _prefs.setString(_kSettings, s.encode());
+
+  // premium
+  PremiumState loadPremium() {
+    final raw = _prefs.getString(_kPremium);
+    if (raw == null) return const PremiumState();
+    try {
+      return PremiumState.decode(raw);
+    } catch (_) {
+      return const PremiumState();
+    }
+  }
+
+  Future<void> savePremium(PremiumState p) =>
+      _prefs.setString(_kPremium, p.encode());
 
   // helpers
   List<T> _decodeList<T>(

@@ -16,11 +16,30 @@ dependencies:
   intl: ^0.19.0
   url_launcher: ^6.3.1
   torch_light: ^1.1.0
+  google_mobile_ads: ^5.3.0
+  in_app_purchase: ^3.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#1864C0"
+  adaptive_icon_foreground: "assets/icon/icon_fg.png"
+  remove_alpha_ios: true
+  min_sdk_android: 23
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#F7F5F1"
+    theme_color: "#1864C0"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/
