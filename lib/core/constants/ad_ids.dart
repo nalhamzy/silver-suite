@@ -17,12 +17,14 @@ class AdIds {
   static const _testInterstitialAndroid = 'ca-app-pub-3940256099942544/1033173712';
   static const _testInterstitialIos = 'ca-app-pub-3940256099942544/4411468910';
 
-  // ------- PRODUCTION placeholders — replace before release -------
-  // Each must be created in AdMob console (Apps → Silver Suite → Ad Units)
-  static const _prodBannerAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
-  static const _prodBannerIos = 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
-  static const _prodInterstitialAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
-  static const _prodInterstitialIos = 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
+  // ------- PRODUCTION IDs (AdMob console — Silver Suite) -------
+  static const _prodBannerAndroid = 'ca-app-pub-2199673102027930/2505934947';
+  static const _prodBannerIos = 'ca-app-pub-2199673102027930/2505934947';
+  // Silver Suite v1.0 has no interstitial unit — same banner ID used as
+  // placeholder so the switch/getter compiles cleanly; interstitial is
+  // never called in production for this app.
+  static const _prodInterstitialAndroid = 'ca-app-pub-2199673102027930/2505934947';
+  static const _prodInterstitialIos = 'ca-app-pub-2199673102027930/2505934947';
 
   static String banner() {
     if (kUseTestAds) {
@@ -45,7 +47,6 @@ class AdAppIds {
   static const testAndroid = 'ca-app-pub-3940256099942544~3347511713';
   static const testIos = 'ca-app-pub-3940256099942544~1458002511';
 
-  // Production placeholders — replace before release.
-  static const prodAndroid = 'ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX';
-  static const prodIos = 'ca-app-pub-XXXXXXXXXXXXXXXX~XXXXXXXXXX';
+  static const prodAndroid = 'ca-app-pub-2199673102027930~3487844121';
+  static const prodIos = 'ca-app-pub-2199673102027930~3487844121';
 }
