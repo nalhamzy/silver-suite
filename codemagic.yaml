@@ -18,7 +18,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.nalhamzy.silverSuite
+        bundle_identifier: com.idealai.silversuite
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -26,7 +26,7 @@ workflows:
       groups:
         - google_play
       vars:
-        PACKAGE_NAME: "com.nalhamzy.silverSuite"
+        PACKAGE_NAME: "com.idealai.silversuite"
     scripts:
       - name: Extract version from pubspec
         script: |
@@ -102,7 +102,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.nalhamzy.silverSuite
+        bundle_identifier: com.idealai.silversuite
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -159,7 +159,7 @@ workflows:
       groups:
         - google_play
       vars:
-        PACKAGE_NAME: "com.nalhamzy.silverSuite"
+        PACKAGE_NAME: "com.idealai.silversuite"
     scripts:
       - name: Extract version from pubspec
         script: |

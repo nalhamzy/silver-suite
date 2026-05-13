@@ -1,4 +1,4 @@
-package com.nalhamzy.silver_suite
+package com.idealai.silversuite
 
 import io.flutter.embedding.android.FlutterActivity
 
