@@ -1,70 +1,69 @@
-# In-App Purchases — Silver Suite
+# In-App Purchases - Silver Suite
 
-## Products
+## Current model
+
+Silver Suite uses a 7-day local trial, then one lifetime unlock. There is no subscription in the current app build.
 
 | ID | Type | Price | What it does |
 |---|---|---|---|
-| `ss_remove_ads` | Non-Consumable | $2.99 | Removes banner ad. That's it. |
-| `ss_premium_monthly` | Auto-Renewable Subscription | $3.99 / mo | Silver+ Monthly: ads removed + unlimited pills/contacts/notes |
-| `ss_premium_yearly` | Auto-Renewable Subscription | $29.99 / yr | Silver+ Yearly (save 37%) |
-| `ss_premium_lifetime` | Non-Consumable | $49.99 | Silver+ Lifetime |
+| `ss_premium_lifetime` | Non-Consumable | $49.99 | Silver+ Lifetime: removes ads and keeps all premium features unlocked forever |
 
-Any premium tier auto-removes ads — no need to buy `ss_remove_ads` on top.
+Legacy sandbox IDs from earlier builds (`ss_remove_ads`, `ss_premium_monthly`, `ss_premium_yearly`) are not queried by new builds. If a tester already has one stored locally, the app still treats it as unlocked so old sandbox state does not strand QA.
 
 ## Setup checklists
 
 ### App Store Connect
-1. Subscription Group: `Silver+ Membership`. Localized display name identical.
-2. Subscriptions: add `ss_premium_monthly`, `ss_premium_yearly`.
-3. Non-consumables: `ss_remove_ads`, `ss_premium_lifetime`.
-4. For v1 we skip free trials. (Add `ss_premium_yearly` intro offer in v1.1.)
+
+1. Use bundle `com.idealai.silversuite`.
+2. Create/keep non-consumable `ss_premium_lifetime`.
+3. Do not create a free-trial offer on this product. The 7-day trial is local app logic, because Apple/Google native free trials are subscription constructs.
+4. Ensure Paid Apps Agreement, tax, and banking are active before IAP review.
 
 ### Google Play Console
-1. Subscriptions: `ss_premium_monthly`, `ss_premium_yearly` under base plan group `silver-plus`.
-2. Managed products: `ss_remove_ads`, `ss_premium_lifetime`.
-3. License testers: add `nalhamzy@gmail.com`.
+
+1. Use package `com.idealai.silversuite`.
+2. Create/keep managed product `ss_premium_lifetime`.
+3. Add `nalhamzy@gmail.com` as a license tester.
+4. Confirm the product is active before testing from an Internal Testing build.
 
 ## Testing
 
 ### iOS
-1. iPhone → Settings → App Store → sign in with sandbox tester.
-2. In app: More tab → Upgrade to Silver+ → pick tier → Continue.
-3. Paywall reacts on `iap.onPurchaseSuccess` → `premiumProvider.activate()`.
+
+1. iPhone Settings -> App Store -> sign in with sandbox tester.
+2. In app: More tab -> Silver+ card -> Continue.
+3. Paywall reacts on `iap.onPurchaseSuccess` -> `premiumProvider.activate()`.
 4. Ad banner disappears immediately on success.
 
-### Android (Play Billing test mode)
-1. Signed AAB → Internal Testing track.
-2. Launch via tester link, purchase runs as test.
+### Android
+
+1. Signed AAB -> Internal Testing track.
+2. Launch via tester link.
+3. Buy `ss_premium_lifetime` as a Play Billing test purchase.
+4. Restore purchases from the paywall on a reinstall.
 
 ## Code touchpoints
 
 - Product IDs: `lib/core/constants/iap_ids.dart`
 - Service: `lib/core/services/iap_service{,_mobile,_stub}.dart`
 - State: `lib/core/models/premium_state.dart`
-- Provider + both `isPremiumProvider` and `hideAdsProvider`:
-  `lib/providers/iap_provider.dart`
+- Provider: `lib/providers/iap_provider.dart`
 - Paywall UI: `lib/screens/paywall_screen.dart`
-- Banner ad widget (respects `hideAds`): `lib/widgets/ad_banner_widget.dart`
+- Banner ad widget: `lib/widgets/ad_banner_widget.dart`
 
-## Purchase → ad-removal flow
+## Purchase flow
 
-```
-iap.buy(productId)
-      │
-      ▼
-Store prompts user for payment
-      │
-      ▼
-Success → iap.onPurchaseSuccess(productId)
-      │
-      ▼
-PremiumNotifier.activate() sets
-    activeProductId + adsRemoved=true (on any ad-removing product)
-      │
-      ▼
-hideAdsProvider rebuilds → AdBannerWidget returns SizedBox.shrink()
+```text
+first launch -> PremiumNotifier starts 7-day local trial
+trial active -> isPremium + hideAds return true
+trial expired -> user sees lifetime paywall
+iap.buy(ss_premium_lifetime)
+store confirms purchase
+iap.onPurchaseSuccess(productId)
+PremiumNotifier.activate(productId)
+hideAdsProvider rebuilds -> AdBannerWidget returns SizedBox.shrink()
 ```
 
 ## Restoration
 
-Same button on the paywall calls `iap.restore()`. On iOS this queries StoreKit; on Android this queries Play Billing history. Any restored transactions hit `onPurchaseSuccess` same as a fresh purchase.
+The paywall Restore button calls `iap.restore()`. Any restored transaction hits `onPurchaseSuccess` and stores `ss_premium_lifetime` locally.

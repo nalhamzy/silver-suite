@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:silver_suite/core/constants/theme.dart';
+import 'package:silver_suite/core/models/premium_state.dart';
 import 'package:silver_suite/core/models/settings.dart';
 import 'package:silver_suite/core/utils/responsive.dart';
 import 'package:silver_suite/providers/iap_provider.dart';
@@ -19,27 +20,35 @@ class MoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final s = ref.read(settingsProvider.notifier);
-    final isPremium = ref.watch(isPremiumProvider);
+    final premium = ref.watch(premiumProvider);
     final hideAds = ref.watch(hideAdsProvider);
 
     return SafeArea(
       child: ResponsiveContentBox(
         child: ListView(
           padding: EdgeInsets.fromLTRB(
-              context.s(20), context.s(18), context.s(20), context.s(120)),
+            context.s(20),
+            context.s(18),
+            context.s(20),
+            context.s(120),
+          ),
           children: [
-            const Text('MORE',
-                style: TextStyle(
-                  fontSize: 12,
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.mute,
-                )),
+            const Text(
+              'MORE',
+              style: TextStyle(
+                fontSize: 12,
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.mute,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text('Tools & settings',
-                style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              'Tools & settings',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 18),
-            _PremiumBanner(isPremium: isPremium, hideAds: hideAds),
+            _PremiumBanner(premium: premium, hideAds: hideAds),
             const SizedBox(height: 18),
             BigRowCard(
               title: 'Flashlight',
@@ -73,8 +82,10 @@ class MoreScreen extends ConsumerWidget {
               onTap: () => _push(context, const CalculatorScreen()),
             ),
             const SizedBox(height: 28),
-            Text('Accessibility',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              'Accessibility',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 10),
             _SettingsCard(
               children: [
@@ -83,8 +94,10 @@ class MoreScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Dark mode',
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        'Dark mode',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       Switch(
                         value: settings.darkMode,
                         activeThumbColor: AppTheme.blue,
@@ -99,37 +112,47 @@ class MoreScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Text size',
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        'Text size',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 10),
                       SegmentedButton<TextScaleOption>(
                         showSelectedIcon: false,
                         segments: const [
                           ButtonSegment(
                             value: TextScaleOption.standard,
-                            label: Text('Aa',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700)),
+                            label: Text(
+                              'Aa',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ),
                           ButtonSegment(
                             value: TextScaleOption.large,
-                            label: Text('Aa',
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800)),
+                            label: Text(
+                              'Aa',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                           ),
                           ButtonSegment(
                             value: TextScaleOption.xLarge,
-                            label: Text('Aa',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w900)),
+                            label: Text(
+                              'Aa',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
                           ),
                         ],
                         selected: {settings.textScale},
-                        onSelectionChanged: (set) =>
-                            s.setTextScale(set.first),
+                        onSelectionChanged: (set) => s.setTextScale(set.first),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -149,18 +172,23 @@ class MoreScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('About Silver Suite',
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        'About Silver Suite',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Big buttons. Clear text. Real help. Everything stays on this device — no account, no cloud, no tracking.',
+                        'Big buttons. Clear text. Real help. Everything stays on this device â€” no account, no cloud, no tracking.',
                         style: TextStyle(fontSize: 15, height: 1.4),
                       ),
                       const SizedBox(height: 8),
-                      const Text('Version 1.0.0',
-                          style: TextStyle(
-                              color: AppTheme.mute,
-                              fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Version 1.0.0',
+                        style: TextStyle(
+                          color: AppTheme.mute,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -178,38 +206,44 @@ class MoreScreen extends ConsumerWidget {
 }
 
 class _PremiumBanner extends StatelessWidget {
-  final bool isPremium;
+  final PremiumState premium;
   final bool hideAds;
-  const _PremiumBanner({required this.isPremium, required this.hideAds});
+  const _PremiumBanner({required this.premium, required this.hideAds});
 
   @override
   Widget build(BuildContext context) {
-    final title = isPremium
-        ? 'Silver+ active'
-        : (hideAds ? 'Ads removed · upgrade for more' : 'Upgrade to Silver+');
-    final subtitle = isPremium
+    final active = premium.isPremium;
+    final title = premium.hasLifetime
+        ? 'Silver+ lifetime active'
+        : (premium.isTrialActive
+              ? 'Trial: ${premium.trialDaysRemaining} day${premium.trialDaysRemaining == 1 ? '' : 's'} left'
+              : (hideAds ? 'Ads removed. Unlock forever' : 'Unlock Silver+'));
+    final subtitle = premium.hasLifetime
         ? 'Thank you for supporting a calm, ad-free app.'
-        : (hideAds
-            ? 'Unlock unlimited pills, contacts, and notes.'
-            : 'Remove ads · unlimited everything · privacy first.');
+        : (premium.isTrialActive
+              ? 'Enjoy everything now. Pay once after the trial to keep it forever.'
+              : (hideAds
+                    ? 'Unlock unlimited pills, contacts, and notes.'
+                    : '7-day trial, then one lifetime purchase. No subscription.'));
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(22),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const PaywallScreen()),
-        ),
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const PaywallScreen())),
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            gradient: isPremium
+            gradient: active
                 ? AppTheme.greenGradient
                 : AppTheme.primaryGradient,
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: (isPremium ? AppTheme.green : AppTheme.blue)
-                    .withValues(alpha: 0.3),
+                color: (active ? AppTheme.green : AppTheme.blue).withValues(
+                  alpha: 0.3,
+                ),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -226,7 +260,7 @@ class _PremiumBanner extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  isPremium ? Icons.workspace_premium : Icons.auto_awesome,
+                  active ? Icons.workspace_premium : Icons.auto_awesome,
                   color: Colors.white,
                   size: 28,
                 ),
@@ -236,20 +270,24 @@ class _PremiumBanner extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                        )),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(subtitle,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.92),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13.5,
-                          height: 1.35,
-                        )),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                        height: 1.35,
+                      ),
+                    ),
                   ],
                 ),
               ),

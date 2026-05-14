@@ -15,13 +15,13 @@ class PaywallScreen extends ConsumerStatefulWidget {
 }
 
 class _PaywallScreenState extends ConsumerState<PaywallScreen> {
-  String _selected = IapProductIds.premiumYearly;
+  String _selected = IapProductIds.premiumLifetime;
   bool _busy = false;
 
   @override
   Widget build(BuildContext context) {
     final hideAds = ref.watch(hideAdsProvider);
-    final isPremium = ref.watch(isPremiumProvider);
+    final premium = ref.watch(premiumProvider);
     final productsAsync = ref.watch(iapProductsProvider);
 
     return Scaffold(
@@ -43,7 +43,10 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.blue.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(999),
@@ -60,21 +63,29 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               ),
               const SizedBox(height: 14),
               Text(
-                'Remove ads. Unlock everything.',
+                premium.isTrialActive
+                    ? 'Your 7-day trial is active.'
+                    : 'Unlock everything forever.',
                 style: Theme.of(context).textTheme.displayMedium,
               ),
               const SizedBox(height: 10),
               Text(
-                'One payment, no clutter. Keeps the people you call and the '
-                'pills you take at your fingertips — no tiny text, no tracking.',
+                premium.isTrialActive
+                    ? '${premium.trialDaysRemaining} day${premium.trialDaysRemaining == 1 ? '' : 's'} left, then one payment keeps Silver+ forever. No subscription.'
+                    : 'One payment, no subscription. Keeps the people you call and the pills you take at your fingertips.',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 22),
-              if (isPremium)
-                _DoneCard(msg: 'Silver+ active. Thank you.')
+              if (premium.hasLifetime)
+                _DoneCard(msg: 'Silver+ lifetime active. Thank you.')
+              else if (premium.isTrialActive)
+                _DoneCard(
+                  msg:
+                      'Trial active: ${premium.trialDaysRemaining} day${premium.trialDaysRemaining == 1 ? '' : 's'} left.',
+                )
               else if (hideAds)
                 _DoneCard(msg: 'Ads removed. Upgrade for unlimited features.'),
-              if (!isPremium) ...[
+              if (!premium.hasLifetime) ...[
                 const _PerksList(),
                 const SizedBox(height: 18),
                 productsAsync.when(
@@ -116,18 +127,26 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                               strokeWidth: 2.4,
                             ),
                           )
-                        : const Text('Continue',
+                        : const Text(
+                            'Continue',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w900)),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 Center(
                   child: TextButton(
                     onPressed: _handleRestore,
-                    child: const Text('Restore purchases',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
+                    child: const Text(
+                      'Restore purchases',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -164,33 +183,9 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
   static const _fallbackProducts = <IapProduct>[
     IapProduct(
-      id: IapProductIds.removeAds,
-      title: 'Remove Ads',
-      description: 'One-time. Just remove the banner.',
-      price: r'$2.99',
-      rawPrice: 2.99,
-      currencyCode: 'USD',
-    ),
-    IapProduct(
-      id: IapProductIds.premiumMonthly,
-      title: 'Silver+ Monthly',
-      description: 'Billed monthly. Cancel anytime.',
-      price: r'$3.99',
-      rawPrice: 3.99,
-      currencyCode: 'USD',
-    ),
-    IapProduct(
-      id: IapProductIds.premiumYearly,
-      title: 'Silver+ Yearly',
-      description: 'Billed yearly. Save 37% vs monthly.',
-      price: r'$29.99',
-      rawPrice: 29.99,
-      currencyCode: 'USD',
-    ),
-    IapProduct(
       id: IapProductIds.premiumLifetime,
       title: 'Silver+ Lifetime',
-      description: 'One payment. Keep forever.',
+      description: 'One payment after the 7-day trial. Keep forever.',
       price: r'$49.99',
       rawPrice: 49.99,
       currencyCode: 'USD',
@@ -203,11 +198,19 @@ class _PerksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const perks = [
-      ('🚫', 'No ads, ever', 'A calm screen when you\'re tired or stressed.'),
-      ('💊', 'Unlimited pills', 'Track every medication. No caps.'),
-      ('📞', 'Unlimited contacts', 'Every family member + every doctor.'),
-      ('📝', 'Unlimited notes', 'Write as much as you need, as large as you need.'),
-      ('🔐', 'Privacy forever', 'No trackers. No accounts. Data stays on this device.'),
+      ('ðŸš«', 'No ads, ever', 'A calm screen when you\'re tired or stressed.'),
+      ('ðŸ’Š', 'Unlimited pills', 'Track every medication. No caps.'),
+      ('ðŸ“ž', 'Unlimited contacts', 'Every family member + every doctor.'),
+      (
+        'ðŸ“',
+        'Unlimited notes',
+        'Write as much as you need, as large as you need.',
+      ),
+      (
+        'ðŸ”',
+        'Privacy forever',
+        'No trackers. No accounts. Data stays on this device.',
+      ),
     ];
     return Column(
       children: [
@@ -232,11 +235,9 @@ class _PerksList extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(p.$2,
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(p.$2, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 2),
-                      Text(p.$3,
-                          style: Theme.of(context).textTheme.bodyMedium),
+                      Text(p.$3, style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -260,18 +261,14 @@ class _ProductPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final order = <String>[
-      IapProductIds.premiumYearly,
-      IapProductIds.premiumLifetime,
-      IapProductIds.premiumMonthly,
-      IapProductIds.removeAds,
-    ];
+    final order = <String>[IapProductIds.premiumLifetime];
     final sorted = [
       for (final id in order)
         products.firstWhere(
           (p) => p.id == id,
-          orElse: () => _PaywallScreenState._fallbackProducts
-              .firstWhere((p) => p.id == id),
+          orElse: () => _PaywallScreenState._fallbackProducts.firstWhere(
+            (p) => p.id == id,
+          ),
         ),
     ];
     return Column(
@@ -303,11 +300,9 @@ class _ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final badge = product.id == IapProductIds.premiumYearly
-        ? 'BEST VALUE'
-        : product.id == IapProductIds.premiumLifetime
-            ? 'PAY ONCE'
-            : null;
+    final badge = product.id == IapProductIds.premiumLifetime
+        ? 'PAY ONCE'
+        : null;
     return Material(
       color: selected
           ? AppTheme.blue.withValues(alpha: 0.10)
@@ -363,7 +358,9 @@ class _ProductTile extends StatelessWidget {
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppTheme.blue,
                               borderRadius: BorderRadius.circular(999),
@@ -412,9 +409,9 @@ class _FinePrint extends StatelessWidget {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Text(
-        'Subscriptions renew until cancelled in your App Store or Play Store '
-        'account. Lifetime and Remove Ads are one-time purchases. '
-        'Restore anytime on any device signed in to the same store account.',
+        'Your trial is stored on this device. Silver+ Lifetime is a one-time '
+        'purchase processed by the App Store or Google Play. Restore anytime '
+        'on any device signed in to the same store account.',
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 12, height: 1.5),
       ),
@@ -449,10 +446,12 @@ class _DoneCard extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(msg,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: AppTheme.green,
-                    )),
+            child: Text(
+              msg,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppTheme.green),
+            ),
           ),
         ],
       ),
