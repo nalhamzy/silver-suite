@@ -75,9 +75,6 @@
 			<string>cstr6suwn9.skadnetwork</string>
 		</dict>
 	</array>
-	<!-- ATT (for personalized ads). "Non-personalized only" flow skips prompt. -->
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This only asks if you'd like personalized ads. Your answer stays on your device.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

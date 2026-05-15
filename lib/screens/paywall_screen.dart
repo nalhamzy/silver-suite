@@ -228,7 +228,7 @@ class _PerksList extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
-                  child: Text(p.$1, style: const TextStyle(fontSize: 22)),
+                  child: Icon(_iconFor(p.$2), color: AppTheme.blue, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -246,6 +246,17 @@ class _PerksList extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  IconData _iconFor(String title) {
+    return switch (title) {
+      'No ads, ever' => Icons.block_rounded,
+      'Unlimited pills' => Icons.medication_liquid_rounded,
+      'Unlimited contacts' => Icons.contacts_rounded,
+      'Unlimited notes' => Icons.edit_note_rounded,
+      'Privacy forever' => Icons.lock_rounded,
+      _ => Icons.check_circle_rounded,
+    };
   }
 }
 
