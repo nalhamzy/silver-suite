@@ -68,7 +68,7 @@ Start with 7 days free, then keep the full suite with one lifetime purchase:
 â€¢ Unlimited saved notes (free tier: 10)
 â€¢ Priority support
 
-One-time lifetime unlock ($49.99). No subscription. Restore purchases is always available.
+One-time lifetime unlock ($29.99 launch price; $49.99 standard). No subscription. Restore purchases is always available.
 
 Big buttons. Clear text. Real help.
 ```
@@ -110,51 +110,17 @@ Silver Suite is a local-first senior utility app. No account or login. All data 
 
 ## Apple In-App Purchases
 
-### Product 1 â€” Premium Monthly
-| Field | Value |
-|---|---|
-| Product ID | `ss_premium_monthly` |
-| Reference Name | `Silver Suite Premium (Monthly)` |
-| Type | Auto-Renewable Subscription |
-| Subscription Group | `ss_premium` |
-| Duration | 1 Month |
-| Price | $3.99 |
-| Display Name | `Premium Monthly` |
-| Description | `No ads, unlimited pill schedules and notes. Renews monthly.` |
-
-### Product 2 â€” Premium Yearly
-| Field | Value |
-|---|---|
-| Product ID | `ss_premium_yearly` |
-| Reference Name | `Silver Suite Premium (Yearly)` |
-| Type | Auto-Renewable Subscription |
-| Subscription Group | `ss_premium` (same group as monthly) |
-| Duration | 1 Year |
-| Price | $29.99 (save 37%) |
-| Display Name | `Premium Yearly` |
-| Description | `Save 37% vs monthly. No ads, unlimited pill schedules and notes.` |
-
-### Product 3 â€” Premium Lifetime
+### Product 1 â€” Premium Lifetime
 | Field | Value |
 |---|---|
 | Product ID | `ss_premium_lifetime` |
 | Reference Name | `Silver Suite Premium (Lifetime)` |
 | Type | Non-Consumable |
-| Price | $49.99 one-time |
+| Price | $29.99 launch / $49.99 standard |
 | Display Name | `Premium Lifetime` |
 | Description | `Pay once. Keep forever. No ads, unlimited everything.` |
 
-### Product 4 â€” Remove Ads
-| Field | Value |
-|---|---|
-| Product ID | `ss_remove_ads` |
-| Reference Name | `Silver Suite â€” Remove Ads` |
-| Type | Non-Consumable |
-| Price | $2.99 one-time |
-| Display Name | `Remove Ads` |
-| Description | `Remove all banner ads from Silver Suite. One-time purchase.` |
-
-**IAP review notes (same for all four):**
+**IAP review notes:**
 ```
 To reproduce: launch app â†’ More tab â†’ "Go Premium" â†’ select tier â†’ confirm. Sandbox tested. Restore Purchases button is always visible on the paywall screen.
 ```

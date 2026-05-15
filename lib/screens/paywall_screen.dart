@@ -186,8 +186,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       id: IapProductIds.premiumLifetime,
       title: 'Silver+ Lifetime',
       description: 'One payment after the 7-day trial. Keep forever.',
-      price: r'$49.99',
-      rawPrice: 49.99,
+      price: r'$29.99',
+      rawPrice: 29.99,
       currencyCode: 'USD',
     ),
   ];

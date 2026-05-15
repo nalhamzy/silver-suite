@@ -39,7 +39,7 @@
 >
 > **Silver+ (optional)**
 > Removes the banner ad and unlocks unlimited medications, contacts, and notes.
-> $3.99/month · $29.99/year · $49.99 lifetime. Or just $2.99 to remove ads.
+> $29.99 launch lifetime. One payment, no subscription. Removes ads and unlocks unlimited medications, contacts, and notes.
 >
 > **Privacy first.** No account. Everything on-device. AdMob for the banner on the free tier — nothing else. No data brokers.
 
@@ -82,10 +82,7 @@ Result: **Everyone**
 
 | Product ID | Type | Price | Description |
 |---|---|---|---|
-| `ss_remove_ads` | Managed product | $2.99 | Remove banner ads |
-| `ss_premium_monthly` | Subscription | $3.99 / month | Silver+ Monthly |
-| `ss_premium_yearly` | Subscription | $29.99 / year | Silver+ Yearly |
-| `ss_premium_lifetime` | Managed product | $49.99 | Silver+ Lifetime |
+| `ss_premium_lifetime` | Managed product | $29.99 launch / $49.99 standard | Silver+ Lifetime |
 
 Base plan group: `silver-plus`.
 

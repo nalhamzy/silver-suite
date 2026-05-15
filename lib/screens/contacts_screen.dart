@@ -5,14 +5,18 @@ import 'package:silver_suite/core/constants/theme.dart';
 import 'package:silver_suite/core/models/contact_entry.dart';
 import 'package:silver_suite/core/utils/responsive.dart';
 import 'package:silver_suite/providers/contacts_provider.dart';
+import 'package:silver_suite/providers/iap_provider.dart';
+import 'package:silver_suite/screens/paywall_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactsScreen extends ConsumerWidget {
   const ContactsScreen({super.key});
+  static const _freeContactLimit = 3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final all = ref.watch(contactsProvider);
+    final isPremium = ref.watch(isPremiumProvider);
     final emergency = all.where((c) => c.isEmergency).toList();
     final rest = all.where((c) => !c.isEmergency).toList();
 
@@ -20,7 +24,11 @@ class ContactsScreen extends ConsumerWidget {
       child: ResponsiveContentBox(
         child: ListView(
           padding: EdgeInsets.fromLTRB(
-              context.s(20), context.s(18), context.s(20), context.s(120)),
+            context.s(20),
+            context.s(18),
+            context.s(20),
+            context.s(120),
+          ),
           children: [
             Row(
               children: [
@@ -28,20 +36,32 @@ class ContactsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('CONTACTS',
-                          style: TextStyle(
-                            fontSize: 12,
-                            letterSpacing: 1.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.mute,
-                          )),
+                      const Text(
+                        'CONTACTS',
+                        style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 1.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.mute,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text('One-tap call',
-                          style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                        'One-tap call',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                     ],
                   ),
                 ),
-                _AddBtn(onTap: () => _openEditor(context, ref)),
+                _AddBtn(
+                  onTap: () {
+                    if (!isPremium && all.length >= _freeContactLimit) {
+                      _showPremiumLimit(context);
+                      return;
+                    }
+                    _openEditor(context, ref);
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 18),
@@ -53,17 +73,22 @@ class ContactsScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 for (final c in emergency)
                   _ContactCard(
-                      contact: c,
-                      onEdit: () => _openEditor(context, ref, editing: c)),
+                    contact: c,
+                    onEdit: () => _openEditor(context, ref, editing: c),
+                  ),
               ],
               if (rest.isNotEmpty) ...[
                 if (emergency.isNotEmpty) const SizedBox(height: 20),
-                const _SectionLabel(text: 'FAMILY & FRIENDS', color: AppTheme.teal),
+                const _SectionLabel(
+                  text: 'FAMILY & FRIENDS',
+                  color: AppTheme.teal,
+                ),
                 const SizedBox(height: 10),
                 for (final c in rest)
                   _ContactCard(
-                      contact: c,
-                      onEdit: () => _openEditor(context, ref, editing: c)),
+                    contact: c,
+                    onEdit: () => _openEditor(context, ref, editing: c),
+                  ),
               ],
             ],
           ],
@@ -72,13 +97,45 @@ class ContactsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _openEditor(BuildContext context, WidgetRef ref,
-      {ContactEntry? editing}) async {
+  Future<void> _openEditor(
+    BuildContext context,
+    WidgetRef ref, {
+    ContactEntry? editing,
+  }) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _ContactEditor(editing: editing),
+    );
+  }
+
+  void _showPremiumLimit(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Contact limit reached'),
+        content: const Text(
+          'The free version keeps 3 favorite contacts. Silver+ unlocks '
+          'unlimited family, doctor, and emergency contacts.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.teal),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PaywallScreen()));
+            },
+            child: const Text('See Silver+'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -97,13 +154,15 @@ class _SectionLabel extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Text(text,
-            style: TextStyle(
-              fontSize: 12,
-              letterSpacing: 1.4,
-              fontWeight: FontWeight.w800,
-              color: color,
-            )),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 12,
+            letterSpacing: 1.4,
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
       ],
     );
   }
@@ -128,12 +187,14 @@ class _AddBtn extends StatelessWidget {
             children: [
               Icon(Icons.add, color: Colors.white, size: 22),
               SizedBox(width: 6),
-              Text('Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  )),
+              Text(
+                'Add',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
@@ -158,12 +219,17 @@ class _EmptyContacts extends StatelessWidget {
                 color: AppTheme.teal.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child:
-                  const Icon(Icons.groups_2_outlined, color: AppTheme.teal, size: 38),
+              child: const Icon(
+                Icons.groups_2_outlined,
+                color: AppTheme.teal,
+                size: 38,
+              ),
             ),
             const SizedBox(height: 16),
-            Text('No contacts yet',
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'No contacts yet',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -234,19 +300,25 @@ class _ContactCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(contact.name,
-                    style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  contact.name,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 if (contact.relation.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(contact.relation,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    contact.relation,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
                 const SizedBox(height: 2),
-                Text(contact.phone,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: accent,
-                        )),
+                Text(
+                  contact.phone,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: accent,
+                  ),
+                ),
               ],
             ),
           ),
@@ -354,20 +426,23 @@ class _ContactEditorState extends ConsumerState<_ContactEditor> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(widget.editing == null ? 'New contact' : 'Edit contact',
-                  style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                widget.editing == null ? 'New contact' : 'Edit contact',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const SizedBox(height: 18),
               _input('Name', _name),
               const SizedBox(height: 12),
-              _input('Phone number', _phone,
-                  keyboardType: TextInputType.phone),
+              _input('Phone number', _phone, keyboardType: TextInputType.phone),
               const SizedBox(height: 12),
               _input('Relation (e.g. Son, Doctor)', _relation),
               const SizedBox(height: 18),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Emergency contact',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+                title: const Text(
+                  'Emergency contact',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
+                ),
                 subtitle: const Text(
                   'Shown at top in red, easy to call in a panic.',
                 ),
@@ -390,7 +465,9 @@ class _ContactEditorState extends ConsumerState<_ContactEditor> {
                   child: Text(
                     widget.editing == null ? 'Add contact' : 'Save',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w900),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -405,9 +482,10 @@ class _ContactEditorState extends ConsumerState<_ContactEditor> {
                     if (!context.mounted) return;
                     Navigator.pop(context);
                   },
-                  child: const Text('Remove contact',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: const Text(
+                    'Remove contact',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ],
@@ -417,8 +495,11 @@ class _ContactEditorState extends ConsumerState<_ContactEditor> {
     );
   }
 
-  Widget _input(String label, TextEditingController c,
-      {TextInputType? keyboardType}) {
+  Widget _input(
+    String label,
+    TextEditingController c, {
+    TextInputType? keyboardType,
+  }) {
     return TextField(
       controller: c,
       keyboardType: keyboardType,

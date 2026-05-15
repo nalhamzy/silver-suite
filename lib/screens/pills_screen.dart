@@ -4,14 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:silver_suite/core/constants/theme.dart';
 import 'package:silver_suite/core/models/pill.dart';
 import 'package:silver_suite/core/utils/responsive.dart';
+import 'package:silver_suite/providers/iap_provider.dart';
 import 'package:silver_suite/providers/pills_provider.dart';
+import 'package:silver_suite/screens/paywall_screen.dart';
 
 class PillsScreen extends ConsumerWidget {
   const PillsScreen({super.key});
+  static const _freePillLimit = 3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pills = ref.watch(pillsProvider);
+    final isPremium = ref.watch(isPremiumProvider);
     final logs = ref.watch(pillLogsProvider);
     final logsNotifier = ref.read(pillLogsProvider.notifier);
 
@@ -24,27 +28,43 @@ class PillsScreen extends ConsumerWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                    context.s(20), context.s(18), context.s(20), 0),
+                  context.s(20),
+                  context.s(18),
+                  context.s(20),
+                  0,
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('TODAY',
-                              style: TextStyle(
-                                fontSize: 12,
-                                letterSpacing: 1.5,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.mute,
-                              )),
+                          const Text(
+                            'TODAY',
+                            style: TextStyle(
+                              fontSize: 12,
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.mute,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('Pills',
-                              style: Theme.of(context).textTheme.headlineMedium),
+                          Text(
+                            'Pills',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ],
                       ),
                     ),
-                    _AddBtn(onTap: () => _openEditor(context, ref)),
+                    _AddBtn(
+                      onTap: () {
+                        if (!isPremium && pills.length >= _freePillLimit) {
+                          _showPremiumLimit(context);
+                          return;
+                        }
+                        _openEditor(context, ref);
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -63,7 +83,9 @@ class PillsScreen extends ConsumerWidget {
                   itemBuilder: (context, i) {
                     final slot = todaySchedule[i];
                     final taken = logsNotifier.takenToday(
-                        slot.pill.id, slot.timeOfDay);
+                      slot.pill.id,
+                      slot.timeOfDay,
+                    );
                     return _PillSlotTile(
                       pill: slot.pill,
                       timeOfDay: slot.timeOfDay,
@@ -102,13 +124,45 @@ class PillsScreen extends ConsumerWidget {
     return slots;
   }
 
-  Future<void> _openEditor(BuildContext context, WidgetRef ref,
-      {PillSchedule? editing}) async {
+  Future<void> _openEditor(
+    BuildContext context,
+    WidgetRef ref, {
+    PillSchedule? editing,
+  }) async {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _PillEditor(editing: editing),
+    );
+  }
+
+  void _showPremiumLimit(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Medication limit reached'),
+        content: const Text(
+          'The free version keeps 3 medications. Silver+ unlocks unlimited '
+          'medications, removes ads, and keeps everything local on this phone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.blue),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PaywallScreen()));
+            },
+            child: const Text('See Silver+'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -138,12 +192,14 @@ class _AddBtn extends StatelessWidget {
             children: [
               Icon(Icons.add, color: Colors.white, size: 22),
               SizedBox(width: 6),
-              Text('Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  )),
+              Text(
+                'Add',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
@@ -169,16 +225,15 @@ class _PillSlotTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        Color(int.parse('FF${pill.color}', radix: 16));
+    final color = Color(int.parse('FF${pill.color}', radix: 16));
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: taken
             ? (dark
-                ? AppTheme.green.withValues(alpha: 0.15)
-                : AppTheme.green.withValues(alpha: 0.10))
+                  ? AppTheme.green.withValues(alpha: 0.15)
+                  : AppTheme.green.withValues(alpha: 0.10))
             : (dark ? const Color(0xFF161A22) : AppTheme.surface),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
@@ -225,12 +280,13 @@ class _PillSlotTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(pill.name,
-                    style: Theme.of(context).textTheme.titleLarge),
+                Text(pill.name, style: Theme.of(context).textTheme.titleLarge),
                 if (pill.dosage?.isNotEmpty ?? false) ...[
                   const SizedBox(height: 2),
-                  Text(pill.dosage!,
-                      style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    pill.dosage!,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
               ],
             ),
@@ -270,11 +326,12 @@ class _CircleBtn extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _CircleBtn(
-      {required this.icon,
-      required this.color,
-      required this.label,
-      required this.onTap});
+  const _CircleBtn({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -291,11 +348,14 @@ class _CircleBtn extends StatelessWidget {
             children: [
               Icon(icon, color: Colors.white, size: 20),
               const SizedBox(width: 6),
-              Text(label,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16)),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
@@ -321,12 +381,17 @@ class _EmptyPills extends StatelessWidget {
                 color: AppTheme.amber.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.medication_liquid_outlined,
-                  color: AppTheme.amber, size: 40),
+              child: const Icon(
+                Icons.medication_liquid_outlined,
+                color: AppTheme.amber,
+                size: 40,
+              ),
             ),
             const SizedBox(height: 16),
-            Text('No medications yet',
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'No medications yet',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 6),
             Text(
               'Tap "Add" to schedule your first one. Names, times, colors — easy.',
@@ -386,15 +451,17 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
     if (_name.text.trim().isEmpty) return;
     final pills = ref.read(pillsProvider.notifier);
     final schedule = PillSchedule(
-      id: widget.editing?.id ??
-          'p${DateTime.now().microsecondsSinceEpoch}',
+      id: widget.editing?.id ?? 'p${DateTime.now().microsecondsSinceEpoch}',
       name: _name.text.trim(),
       dosage: _dose.text.trim().isEmpty ? null : _dose.text.trim(),
-      timesOfDay: _times
-          .map((t) =>
-              '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}')
-          .toList()
-        ..sort(),
+      timesOfDay:
+          _times
+              .map(
+                (t) =>
+                    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
+              )
+              .toList()
+            ..sort(),
       color: _color,
     );
     if (widget.editing != null) {
@@ -462,17 +529,25 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
                       label: Text(
                         _times[i].format(context),
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
                       ),
                       onDeleted: () => setState(() => _times.removeAt(i)),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
                     ),
                   ActionChip(
                     avatar: const Icon(Icons.add, size: 20),
-                    label: const Text('Add time',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16)),
+                    label: const Text(
+                      'Add time',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
                     onPressed: _addTime,
                   ),
                 ],
@@ -493,7 +568,9 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
                           color: Color(int.parse('FF$c', radix: 16)),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: _color == c ? AppTheme.ink : Colors.transparent,
+                            color: _color == c
+                                ? AppTheme.ink
+                                : Colors.transparent,
                             width: 3,
                           ),
                         ),
@@ -516,7 +593,9 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
                   child: Text(
                     widget.editing == null ? 'Add' : 'Save',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w900),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -531,9 +610,10 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
                     if (!context.mounted) return;
                     Navigator.pop(context);
                   },
-                  child: const Text('Remove this medication',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: const Text(
+                    'Remove this medication',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ],
@@ -569,4 +649,3 @@ class _PillEditorState extends ConsumerState<_PillEditor> {
     );
   }
 }
-

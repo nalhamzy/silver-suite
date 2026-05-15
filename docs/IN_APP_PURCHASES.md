@@ -4,9 +4,18 @@
 
 Silver Suite uses a 7-day local trial, then one lifetime unlock. There is no subscription in the current app build.
 
+Free users keep the core app, with calm limits after the trial:
+
+- 3 medications
+- 3 favorite contacts
+- 5 large-text notes
+- Banner ads
+
+Silver+ removes those caps and removes ads.
+
 | ID | Type | Price | What it does |
 |---|---|---|---|
-| `ss_premium_lifetime` | Non-Consumable | $49.99 | Silver+ Lifetime: removes ads and keeps all premium features unlocked forever |
+| `ss_premium_lifetime` | Non-Consumable | $29.99 launch / $49.99 standard | Silver+ Lifetime: removes ads and keeps all premium features unlocked forever |
 
 Legacy sandbox IDs from earlier builds (`ss_remove_ads`, `ss_premium_monthly`, `ss_premium_yearly`) are not queried by new builds. If a tester already has one stored locally, the app still treats it as unlocked so old sandbox state does not strand QA.
 

@@ -46,7 +46,7 @@ Paste into App Store Connect → App Information / Version Info.
 > **Silver+ (optional upgrade)**
 > Removes the banner ad and unlocks unlimited medications, contacts, and notes — plus priority access to future tools (widgets, SOS location sharing, bigger keyboard themes).
 >
-> $3.99/month · $29.99/year (save 37%) · $49.99 lifetime · or just $2.99 to remove ads forever.
+> $29.99 launch lifetime. One payment, no subscription. Removes ads and unlocks unlimited medications, contacts, and notes.
 >
 > **Privacy first, by design.** No account required. Everything stays on your device. No third-party analytics. Ads are served only when you're on the free tier, and even those don't follow you around — AdMob only, no data brokers.
 
@@ -99,10 +99,7 @@ Welcome to Silver Suite 1.0.
 
 | Product | Type | Reference | Price |
 |---|---|---|---|
-| Remove Ads | Non-Consumable | `ss_remove_ads` | $2.99 |
-| Silver+ Monthly | Subscription | `ss_premium_monthly` | $3.99/mo |
-| Silver+ Yearly | Subscription | `ss_premium_yearly` | $29.99/yr |
-| Silver+ Lifetime | Non-Consumable | `ss_premium_lifetime` | $49.99 |
+| Silver+ Lifetime | Non-Consumable | `ss_premium_lifetime` | $29.99 launch / $49.99 standard |
 
 Subscription group name: `Silver+ Membership`.
 

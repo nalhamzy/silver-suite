@@ -3,14 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:silver_suite/core/constants/theme.dart';
 import 'package:silver_suite/core/models/note.dart';
+import 'package:silver_suite/providers/iap_provider.dart';
 import 'package:silver_suite/providers/notes_provider.dart';
+import 'package:silver_suite/screens/paywall_screen.dart';
 
 class NotesScreen extends ConsumerWidget {
   const NotesScreen({super.key});
+  static const _freeNoteLimit = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notes = List<Note>.from(ref.watch(notesProvider));
+    final isPremium = ref.watch(isPremiumProvider);
     notes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
 
     return Scaffold(
@@ -19,7 +23,13 @@ class NotesScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add, size: 28),
-            onPressed: () => _openEditor(context),
+            onPressed: () {
+              if (!isPremium && notes.length >= _freeNoteLimit) {
+                _showPremiumLimit(context);
+                return;
+              }
+              _openEditor(context);
+            },
           ),
         ],
       ),
@@ -37,12 +47,17 @@ class NotesScreen extends ConsumerWidget {
                         color: AppTheme.green.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.edit_note_outlined,
-                          color: AppTheme.green, size: 40),
+                      child: const Icon(
+                        Icons.edit_note_outlined,
+                        color: AppTheme.green,
+                        size: 40,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    Text('No notes yet',
-                        style: Theme.of(context).textTheme.headlineSmall),
+                    Text(
+                      'No notes yet',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       'Tap the + to jot something big, clear, and easy to read later.',
@@ -66,9 +81,38 @@ class NotesScreen extends ConsumerWidget {
   }
 
   void _openEditor(BuildContext context, {Note? editing}) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => _NoteEditor(editing: editing),
-    ));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => _NoteEditor(editing: editing)));
+  }
+
+  void _showPremiumLimit(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Note limit reached'),
+        content: const Text(
+          'The free version keeps 5 large-text notes. Silver+ unlocks '
+          'unlimited notes, removes ads, and keeps your data on this device.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Not now'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.green),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PaywallScreen()));
+            },
+            child: const Text('See Silver+'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -184,14 +228,14 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
         actions: [
           if (widget.editing != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline,
-                  color: AppTheme.red, size: 26),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: AppTheme.red,
+                size: 26,
+              ),
               onPressed: _delete,
             ),
-          IconButton(
-            icon: const Icon(Icons.check, size: 28),
-            onPressed: _save,
-          ),
+          IconButton(icon: const Icon(Icons.check, size: 28), onPressed: _save),
         ],
       ),
       body: Padding(
@@ -200,8 +244,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
           children: [
             TextField(
               controller: _title,
-              style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.w800),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
               decoration: const InputDecoration(
                 hintText: 'Title',
                 border: InputBorder.none,
@@ -215,7 +258,10 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
                 style: const TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.w500, height: 1.4),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
                 decoration: const InputDecoration(
                   hintText: 'Write here…',
                   border: InputBorder.none,
