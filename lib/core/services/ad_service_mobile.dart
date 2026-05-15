@@ -6,6 +6,8 @@ import 'package:silver_suite/core/constants/ad_ids.dart';
 
 import 'ad_service.dart';
 
+const _nonPersonalizedAdRequest = AdRequest(nonPersonalizedAds: true);
+
 AdService createAdService() {
   if (Platform.isAndroid || Platform.isIOS) {
     return _MobileAdService();
@@ -28,7 +30,7 @@ class _MobileAdService implements AdService {
   void _preloadInterstitial() {
     InterstitialAd.load(
       adUnitId: AdIds.interstitial(),
-      request: const AdRequest(),
+      request: _nonPersonalizedAdRequest,
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) => _interstitial = ad,
         onAdFailedToLoad: (_) => _interstitial = null,
@@ -82,7 +84,7 @@ class _BannerViewState extends State<_BannerView> {
     _ad = BannerAd(
       adUnitId: widget.unitId,
       size: AdSize.banner,
-      request: const AdRequest(),
+      request: _nonPersonalizedAdRequest,
       listener: BannerAdListener(
         onAdLoaded: (_) => setState(() => _loaded = true),
         onAdFailedToLoad: (ad, _) => ad.dispose(),

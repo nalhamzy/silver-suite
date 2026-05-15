@@ -1,7 +1,7 @@
 name: silver_suite
 description: "Silver Suite — Big buttons. Clear text. Real help. A senior-friendly utility kit."
 publish_to: 'none'
-version: 1.0.7+8
+version: 1.0.8+9
 environment:
   sdk: ^3.11.0
 
